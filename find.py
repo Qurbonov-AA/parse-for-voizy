@@ -1,7 +1,8 @@
 from json import dump,load
 import nltk
 import telebot
-import time 
+import time
+from googlesearch import search
 
 voizy = {}
 
@@ -25,7 +26,12 @@ def find_link(intent,item):
         if x == item:
             print(voizy[intent]["links"][i])
             indeks.append(voizy[intent]["links"][i])
-    return indeks
+    if (len(indeks) > 0):
+        return indeks
+    else:
+        indeks.append('None')
+        return indeks
+    
 
 
 def file_open():
@@ -37,20 +43,35 @@ def file_open():
 
 def find_in_voizy(text):
     global voizy
+    answer = ''
+    alist = []
     file_open()
     text = filter(text)
     for find,value in voizy.items():
-           for item in value["names"]:
-               item = filter(item)
+        for item in value["names"]:
+            item = filter(item)
                
-               if (len(item) > 0):
-                   distance = nltk.edit_distance(text,item)/len(item)
+            if (len(item) > 0):
+                distance = nltk.edit_distance(text,item)/len(item)
                           
-               if (item == text or distance <= 0.3):
-                   print(f' siz izlagan suz {text} manashu url da {find} va shu item - {item} va shuncha yaqinlikda {distance}')
-                   return find_link(find,item)
-                   
+            if (item == text or distance <= 0.3):
+                print(f' siz izlagan suz {text} manashu url da {find} va shu item - {item} va shuncha yaqinlikda {distance}')
+                answer = 'topdim' 
+                if (len(find_link(find,item)) > 0):
+                    alist = find_link(find,item)
+                    print(alist)
+                    return alist       
+                
+                
+                
+    
+        
+        
+        
 
+
+
+         
 def send_audio(mid,link):
     bot.send_audio(mid,link)   
 
@@ -60,12 +81,19 @@ def send_audio(mid,link):
 
 def answer_by_text(message):
     links = []
-    links = find_in_voizy(message.text)
-    print(links)
-    for link in links:
-        #audio = open(link, 'rb')
-        send_audio(message.chat.id,link)
-        time.sleep(5)
+    if(find_in_voizy(message.text) != None):
+        print(find_in_voizy(message.text))
+        links = list(find_in_voizy(message.text))        
+        for link in links:
+            #audio = open(link, 'rb')
+            if (len(link) > 0):
+                send_audio(message.chat.id,link)   
+                time.sleep(3)
+    else:
+        evrika = search(message.text+'.mp3', num_results=10, lang="en")
+        for li in evrika:
+            text = "<a href='"+li+"'>Перейти</a>\n"
+            bot.send_message(message.chat.id,text,parse_mode="HTML")
          
         
     
