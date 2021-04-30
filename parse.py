@@ -5,6 +5,7 @@ texts = []
 link = []
 voizy = {}
 
+# file save or update
 def file_save(url):
     global link
     global texts
@@ -14,17 +15,18 @@ def file_save(url):
         voizy[url]["links"].append(item)
     for item in texts:
         voizy[url]["names"].append(item)
-    with open('texts.json','w') as f:
+    with open('texts.json','w',encoding="utf-8") as f:
         json.dump(voizy,f)        
-    
+    link = []
+    texts = []
 
-
+# open file 
 def file_open():
-    with open('texts.json','r') as f:
+    with open('texts.json','r',encoding="utf-8") as f:
         voizy = json.load(f)
         print(voizy.keys())
 
-
+#get link for mp3 in site
 def find_link(slink):
     global link 
     if (len(slink) > 0):
@@ -35,7 +37,7 @@ def find_link(slink):
             link.append('https://www.myinstants.com'+sitem[nindex:-10])
     
 
-        
+# get text for search        
 def get_names(names):
     global texts
     if (len(names) > 0):
@@ -45,14 +47,14 @@ def get_names(names):
     
         
 
-
+# get url adres site 
 def get_urls():
     for item in range(1,300):
         html = r.get('https://www.myinstants.com/index/us/?page='+str(item))
         soup = BeautifulSoup(html.text,'html.parser')
-        error = soup.find("h2")
+        error = soup.find("div",{"id" : "instants_container"})
         #print(error)
-        if (error != '<h2>Page not found</h2>'):
+        if (error != None):
             divs = soup.find("div",{"id" : "instants_container"})
             names = divs.find_all("a" , {"class" : "instant-link"})
             links = divs.find_all("div", {"class" : "small-button"})
@@ -66,9 +68,7 @@ def get_urls():
 
 
 
+#file_open()
+get_urls()
 
-#get_urls()
-file_open()
-print(link)
-print(texts)
 
