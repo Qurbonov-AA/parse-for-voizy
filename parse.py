@@ -61,6 +61,7 @@ def get_urls():
             find_link(links)
             get_names(names)
             file_save('https://www.myinstants.com/index/us/?page='+str(item))
+            
         else:
             break
 
